@@ -125,6 +125,7 @@ Windows 控制台工具按 OEM 代码页输出，而 Node 按 UTF-8 解码。只
 
 ## 相关项目
 
+- **[`dsh-plugin/`](dsh-plugin/)** —— 同一份内核的 DSH 工具壳，注册模型工具 `github_push`，让「一句话推送」真正落地。源码就在本仓库里；它同时单独发布为一个 `dsh-github-push` 仓库，以便被 DSH 插件市场收录。两处的内核副本由 `scripts/sync-plugin.mjs` 机械同步，不存在第二份手写实现。
 - [`dsh-plugin-publish`](https://github.com/suyukun/dsh-plugin-publish) —— 面向 Agent 技能的**发布流程协议**（preflight → 建仓 → awesome 列表 PR → 市场提交）。它是「说明书」，outbox 是「代码内核」，两者互补。
 
 ## English abstract
