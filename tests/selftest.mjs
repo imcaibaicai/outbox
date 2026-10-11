@@ -201,6 +201,35 @@ check(
 );
 
 /* ------------------------------------------------------------------ *
+ * 3.6 已跟踪、却已被 gitignore 覆盖的残留
+ *
+ * 这类残留最阴险：.gitignore 只对「未跟踪」文件生效，文件一旦提交过就永远
+ * 跟着走。outbox 第一次真实推送时就是这样把 tests/_push_result.txt 送上去的。
+ * ------------------------------------------------------------------ */
+
+const staleDir = path.join(tmpRoot, 'case-stale');
+await fs.mkdir(staleDir, { recursive: true });
+await fs.writeFile(path.join(staleDir, 'README.md'), '# stale\n', 'utf8');
+await fs.writeFile(path.join(staleDir, 'temp-output.txt'), 'build artifact\n', 'utf8');
+
+await ensureLocalRepo(staleDir, env);
+await stageAll(staleDir, env);
+// 先提交，模拟「历史上已经被提交过」
+const staleCommit = await run('git', ['commit', '-m', 'add temp output'], { cwd: staleDir, env });
+check('残留用例：预置提交成功', staleCommit.code === 0, `code=${staleCommit.code} ${staleCommit.stderr.trim().slice(0, 80)}`);
+
+// 之后才把它写进忽略规则
+await fs.writeFile(path.join(staleDir, '.gitignore'), 'temp-output.txt\n', 'utf8');
+await stageAll(staleDir, env);
+
+const staleScan = await scanStaged(staleDir, env);
+check(
+	'检出「已跟踪但已被 gitignore 覆盖」的残留',
+	staleScan.warn.some((x) => x.rule === 'tracked-but-ignored' && x.file === 'temp-output.txt'),
+	staleScan.warn.map((x) => `${x.file}[${x.rule}]`).join(', ') || '(空)',
+);
+
+/* ------------------------------------------------------------------ *
  * 4. 非 ASCII 路径（Windows OEM 编码坑的回归用例）
  *    本机用户目录就是中文，任何一处编码退化都会在这里立刻暴露。
  * ------------------------------------------------------------------ */
@@ -240,8 +269,11 @@ check('gh 登录态可用', auth.ok === true, auth.ok ? `account=${auth.account}
 const owner = await getOwner(env, { timeoutMs: 60_000 });
 check('能动态取到 owner（不写死账号）', typeof owner === 'string' && owner.length > 0, `owner=${owner}`);
 
-const repoView = await run('gh', ['repo', 'view', `${owner}/outbox`, '--json', 'name'], { env, timeoutMs: 60_000 });
-check('outbox 远端仓库尚未占用（可用于首次推送）', repoView.code !== 0, `gh repo view 退出码 ${repoView.code}`);
+// 这条断言最初写的是「远端 outbox 尚未占用」——首次推送成功后仓库已存在，
+// 那个断言就永久过期了。改成持久有意义的：能通过 gh 读到远端仓库元数据，
+// 证明 API 通路、凭据与权限都正常。
+const repoView = await run('gh', ['repo', 'view', `${owner}/outbox`, '--json', 'name,visibility,url'], { env, timeoutMs: 60_000 });
+check('gh 能读到远端仓库元数据', repoView.code === 0, repoView.code === 0 ? repoView.stdout.trim() : `退出码 ${repoView.code}`);
 
 /* ------------------------------------------------------------------ *
  * 收尾

@@ -77,7 +77,7 @@ node src/cli.mjs --dir ./my-project --visibility public
 |---|---|---|
 | `block` | 高置信度凭据：GitHub/OpenAI/AWS 令牌、私钥文件内容、`.env`/`*.pem`/`id_rsa` 等文件名、超过 95 MiB 的文件 | **硬阻断**，远端不会被创建 |
 | `confirm` | 疑似个人敏感信息：身份证号、手机号、学号字段、暴露本机用户名的绝对路径，以及你自己的自定义模式 | **禁止自动公开**，必须逐条确认 |
-| `warn` | 疑似明文口令/密钥赋值、超过 10 MiB 的大文件 | 只提示，不阻断 |
+| `warn` | 疑似明文口令/密钥赋值、超过 10 MiB 的大文件、**已被 gitignore 覆盖却仍在版本控制中的残留** | 只提示，不阻断 |
 
 补充自定义模式：在 `~/.outbox/patterns.json` 写
 

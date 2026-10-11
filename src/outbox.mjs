@@ -460,6 +460,25 @@ export async function scanStaged(dir, env, options = {}) {
 
 	let scanned = 0;
 
+	// 已被跟踪、但按 .gitignore 现在本应被忽略的文件。
+	// 这类残留最容易漏掉：.gitignore 只对「未跟踪」文件生效，文件一旦提交过就
+	// 永远跟着走 —— 即使后来把它写进了忽略规则。只有 git rm --cached 才能摘掉。
+	const ignoredTracked = await run('git', ['ls-files', '-z', '--cached', '--ignored', '--exclude-standard'], {
+		cwd: dir,
+		env,
+		timeoutMs,
+	});
+	if (ignoredTracked.code === 0) {
+		for (const rel of ignoredTracked.stdout.split('\0').filter((f) => f.length > 0)) {
+			warn.push({
+				rule: 'tracked-but-ignored',
+				label: '已被 gitignore 覆盖但仍在版本控制中',
+				file: rel.split(path.sep).join('/'),
+				detail: '需 git rm --cached 才能移除',
+			});
+		}
+	}
+
 	for (const rel of files) {
 		const abs = path.join(dir, rel);
 		const posix = rel.split(path.sep).join('/');

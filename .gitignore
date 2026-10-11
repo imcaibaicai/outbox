@@ -1,6 +1,6 @@
-# 测试产物与本地临时文件
-tests/_*.json
-tests/_*.mjs
+# 测试产物与本地临时文件（含所有扩展名，避免漏网）
+tests/_*
+_push_result.txt
 
 # 依赖与编辑器
 node_modules/
