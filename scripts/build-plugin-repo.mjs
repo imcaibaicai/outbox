@@ -62,7 +62,19 @@ await fs.copyFile(path.join(root, 'LICENSE'), path.join(targetDir, 'LICENSE'));
 
 await fs.writeFile(
 	path.join(targetDir, '.gitignore'),
-	['# 依赖与编辑器临时文件', 'node_modules/', '.DS_Store', 'Thumbs.db', '*.log', ''].join('\n'),
+	[
+		'# 依赖与编辑器临时文件',
+		'node_modules/',
+		'.DS_Store',
+		'Thumbs.db',
+		'*.log',
+		'',
+		'# 本地临时产物（下划线前缀）。',
+		'# 教训：任何要发布的目录都必须先忽略自己的中间产物 —— 否则推送报告、',
+		'# 测试输出这类文件会跟着代码一起上远端。',
+		'_*',
+		'',
+	].join('\n'),
 	'utf8',
 );
 
