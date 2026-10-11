@@ -1,0 +1,39 @@
+{
+  "name": "outbox",
+  "version": "0.1.0",
+  "description": "把本地目录可靠地送上 GitHub：代理自动探测、gh 登录态自愈、推送前安全闸门、推送后 SHA 回读校验。零依赖，一份内核同时供给 CLI / Agent Skill / DSH 插件。",
+  "type": "module",
+  "license": "MIT",
+  "main": "src/outbox.mjs",
+  "exports": {
+    ".": "./src/outbox.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "outbox": "src/cli.mjs"
+  },
+  "files": [
+    "src/outbox.mjs",
+    "src/cli.mjs",
+    "SKILL.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node tests/selftest.mjs",
+    "dry": "node src/cli.mjs --dry-run"
+  },
+  "keywords": [
+    "github",
+    "git",
+    "push",
+    "publish",
+    "proxy",
+    "agent-skill",
+    "dsh-plugin",
+    "automation"
+  ]
+}

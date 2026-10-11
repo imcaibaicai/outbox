@@ -1,0 +1,25 @@
+# outbox 自己的放行清单
+#
+# 为什么需要它：本仓库的测试夹具里**故意**埋了几段假密钥与假个人路径 ——
+# 那正是用来验证扫描器抓不抓得住它们。没有这份清单，outbox 会被自己的闸门拦住。
+# 这不是假设：第一次推送时，它确实拦住了自己。
+#
+# 格式：<路径 glob> [规则 id]
+#   省略规则 id 表示放行该路径下的**全部**规则；建议永远写明确则 id，
+#   放行范围越小越容易审计。本文件会随仓库一起提交，所以「谁放行了什么」
+#   永远是可查的，不存在隐形豁免。
+
+# 单元测试夹具：假密钥与假个人路径（tests/selftest.mjs）
+tests/selftest.mjs    github-token
+tests/selftest.mjs    openai-key
+tests/selftest.mjs    aws-access-key
+tests/selftest.mjs    private-key
+tests/selftest.mjs    nix-user-path
+tests/selftest.mjs    student-id-hint
+
+# 闸门验收用例：假密钥（tests/e2e-gates.mjs）
+tests/e2e-gates.mjs   github-token
+
+# 内核自身：解析凭据的代码里必然出现「口令字段名 + 等号」的字面量，
+# 会被那条宽泛的启发式规则命中，这里显式放行。
+src/outbox.mjs        password-assign
