@@ -23,7 +23,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node tests/selftest.mjs",
+    "test": "node tests/selftest.mjs && node tests/plugin-smoke.mjs && node scripts/sync-plugin.mjs --check",
+    "test:gates": "node tests/e2e-gates.mjs",
+    "sync": "node scripts/sync-plugin.mjs",
+    "check:sync": "node scripts/sync-plugin.mjs --check",
     "dry": "node src/cli.mjs --dry-run"
   },
   "keywords": [

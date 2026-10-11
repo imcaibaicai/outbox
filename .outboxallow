@@ -22,4 +22,8 @@ tests/e2e-gates.mjs   github-token
 
 # 内核自身：解析凭据的代码里必然出现「口令字段名 + 等号」的字面量，
 # 会被那条宽泛的启发式规则命中，这里显式放行。
-src/outbox.mjs        password-assign
+src/outbox.mjs                password-assign
+
+# 插件包里的内嵌内核是 src/outbox.mjs 的机器生成副本（见 scripts/sync-plugin.mjs），
+# 命中原因同上。
+dsh-plugin/lib/outbox.mjs     password-assign
